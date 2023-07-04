@@ -17,3 +17,5 @@ const s3StackProps : S3StackProps = {
   },
 }
 
+const s3staName = devParameter.envName + '-' + devParameter.s3BucketName;
+const s3sta = new S3Stack(app, s3staName, s3StackProps);
