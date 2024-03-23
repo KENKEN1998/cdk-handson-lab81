@@ -20,7 +20,7 @@ export const devParameter: AppParameter = {
   env: { account: '123456789012', region: 'ap-northeast-1' },
   s3BucketName: 'thinhbt-dev-s3-bucket',
   //vpc
-  vpcName: 'thinhbt-vpc',
+  vpcName: 'lab81-proj-vpc',
   vpcMaxAzs: 2,
   vpcNatGateways: 1,
   natGatewaySubnetCidr: 24,
