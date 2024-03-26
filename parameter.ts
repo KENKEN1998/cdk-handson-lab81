@@ -17,8 +17,8 @@ export interface AppParameter {
 // Example for Develop Development
 export const devParameter: AppParameter = {
   envName: 'Development',
-  env: { account: '123456789012', region: 'ap-northeast-1' },
-  s3BucketName: 'thinhbt-dev-s3-bucket',
+  env: { account: '976921358976', region: 'us-east-1' },
+  s3BucketName: '',
   //vpc
   vpcName: 'lab81-proj-vpc',
   vpcMaxAzs: 2,
@@ -29,16 +29,3 @@ export const devParameter: AppParameter = {
   
 };
 
-// Example for Staging Development
-export const stagParameter: AppParameter = {
-  envName: 'Staging',
-  env: { account: '123456789012', region: 'ap-southeast-2' },
-  s3BucketName: 'thinhbt-stg-s3-bucket',
-};
-
-// Example for Product Deployment
-export const prodParameter: AppParameter = {
-  envName: 'Production',
-  env: { account: '123456789012', region: 'ap-northeast-1' },
-  s3BucketName: 'thinhbt-prod-s3-bucket',
-};

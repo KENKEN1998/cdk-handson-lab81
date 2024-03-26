@@ -5,7 +5,8 @@ import {aws_iam as iam} from 'aws-cdk-lib';
 import {aws_autoscaling as autoscaling} from 'aws-cdk-lib';
 import {aws_elasticloadbalancingv2 as elbv2} from 'aws-cdk-lib';
 import {aws_route53 as route53} from 'aws-cdk-lib';
-import {aws_route53_targets as route53Targets } from 'aws-cdk-lib';
+import { Duration } from 'aws-cdk-lib';
+import * as targets from 'aws-cdk-lib/aws-route53-targets';
 
 export interface VpcStackProps extends StackProps {
   vpcName: string;
@@ -48,11 +49,12 @@ export class VpcStack extends Stack {
     // Create a Security Group
     const securityGroup = new ec2.SecurityGroup(this, 'pub-ec2-sg', {
       vpc,
-      description: 'HTTP access',
+      description: 'HTTP/HTTPS access',
       securityGroupName: 'pub-ec2-sg'
     });
     //securityGroup.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.tcp(22), 'Allow SSH access');
     securityGroup.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.tcp(80), 'Allow HTTP access');
+    securityGroup.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.tcp(443), 'Allow HTTPS access');
 
     // Create a role for EC2 instances
     const role = new iam.Role(this, 'MyEC2RoleForSSM', {
@@ -124,32 +126,50 @@ export class VpcStack extends Stack {
 
     // Attach the target group to the load balancer
     targetGroup.addTarget(asg);
-
+  
     // Add a listener to the ALB
-    alb.addListener('Listener', {
-      port: 80,
-      defaultAction: elbv2.ListenerAction.forward([targetGroup]),
+    const listener = alb.addListener('listner', {
+      port: 443,
+      certificates: [
+        // Replace with your SSL certificate ARN
+        elbv2.ListenerCertificate.fromArn('arn:aws:acm:us-east-1:976921358976:certificate/b23cff93-e03d-40c0-83d1-f0c727fa8a1c'),
+      ],
+      defaultAction: elbv2.ListenerAction.fixedResponse(200, {
+        contentType: 'text/plain',
+        messageBody: 'Hello from the load balancer!',
+      }),
     });
+
+    listener.addTargets('ApplicationFleet', {
+      port: 80,
+      targets: [asg],
+      healthCheck: {
+        path: '/',
+        interval: Duration.minutes(1),
+      },
+    });
+
+    asg.connections.allowFrom(alb, ec2.Port.tcp(80));
 
     // Replace these with your domain name
-    const domainName = 'subdomain.example.com';
 
     // Replace these with your hosted zone ID
-    const hostedZoneId = 'XXXXXXXXXXXXXXXXXXXX';
-    const hostedZoneName = 'example.com';
+    // Define your hosted zone
+    const hostedZoneName = 'kenkenaws.pro';
+    const hostedZoneID = 'Z0274812QKX1XHIXKVID'
 
-    // Fetch existing hosted zone
-    //const zone = route53.HostedZone.fromHostedZoneId(this, 'MyHostedZone', hostedZoneId);
 
-    const zone = route53.HostedZone.fromHostedZoneAttributes(this, 'MyHostedZone', {
-      hostedZoneId: hostedZoneId,
+    const hostedZone = route53.HostedZone.fromHostedZoneAttributes(this, 'MyHostZone', {
+
+      hostedZoneId: hostedZoneID,
       zoneName: hostedZoneName
     });
-    // Create a record set for the ALB
+
+    // Create a record in Route 53 to point to the load balancer
     new route53.ARecord(this, 'AliasRecord', {
-      recordName: domainName,
-      zone,
-      target: route53.RecordTarget.fromAlias(new route53Targets.LoadBalancerTarget(alb)),
+      zone: hostedZone,
+      target: route53.RecordTarget.fromAlias(new targets.LoadBalancerTarget(alb)),
+      recordName: 'kenkenaws.pro', // Replace with your domain name
     });
   }
 }

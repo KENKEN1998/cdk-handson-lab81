@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 import * as cdk from 'aws-cdk-lib';
 import { devParameter } from '../parameter';
-import { S3StackProps, S3Stack} from '../lib/s3-stack';
 import { VpcStackProps, VpcStack} from '../lib/vpc-stack';
 import { Vpc } from 'aws-cdk-lib/aws-ec2';
 
