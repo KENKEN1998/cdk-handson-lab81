@@ -132,7 +132,7 @@ export class VpcStack extends Stack {
       port: 443,
       certificates: [
         // Replace with your SSL certificate ARN
-        elbv2.ListenerCertificate.fromArn('arn:aws:acm:us-east-1:976921358976:certificate/b23cff93-e03d-40c0-83d1-f0c727fa8a1c'),
+        elbv2.ListenerCertificate.fromArn('xxxxxxxxxxxxxxxxxxx'),
       ],
       defaultAction: elbv2.ListenerAction.fixedResponse(200, {
         contentType: 'text/plain',
@@ -156,7 +156,7 @@ export class VpcStack extends Stack {
     // Replace these with your hosted zone ID
     // Define your hosted zone
     const hostedZoneName = 'kenkenaws.pro';
-    const hostedZoneID = 'Z0274812QKX1XHIXKVID'
+    const hostedZoneID = 'xxxxxxxxxxxxxxxxxx'
 
 
     const hostedZone = route53.HostedZone.fromHostedZoneAttributes(this, 'MyHostZone', {
